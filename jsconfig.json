@@ -1,7 +1,9 @@
 {
   "compilerOptions": {
+    "baseUrl": "src",  // This will allow you to use '@' for imports
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./*"],
+      "@utillts/*": ["./Utills/*"]
     }
   }
 }
