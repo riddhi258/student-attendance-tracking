@@ -2,11 +2,10 @@
 import React, { useEffect,useState } from 'react';
 import AddNewStudent from './_components/AddNewStudent';
 import StudentListTable from './_components/StudentListTable';
-import GlobalApi from "@/app/_services/GlobalApi";
+import GlobalApi from '../../_services/GlobalApi';
 
 function Student() {
  
-
   const[studentList,setStudentList]=useState([]);
   const GetAllStudents = () => {
     GlobalApi.GetAllStudents()

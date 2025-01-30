@@ -1,5 +1,5 @@
-import  db  from "@/Utills";
-import {STUDENTS}from "@/Utills/schema";
+import { STUDENTS } from "../../../Utills/schema";
+import db from "../../../Utills";
 import { NextResponse } from "next/server";
 import { eq } from 'drizzle-orm';
 

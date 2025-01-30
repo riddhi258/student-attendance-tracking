@@ -1,6 +1,6 @@
-import db from "@/Utills";
+import { ATTENDANCE, STUDENTS } from "../../../Utills/schema";
+import db from "../../../Utills";
 import { NextResponse } from "next/server";
-import { ATTENDANCE, STUDENTS } from "@/Utills/schema";
 import { eq, or, isNull } from "drizzle-orm";
 
 export async function GET(req) {

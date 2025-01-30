@@ -7,11 +7,12 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import GlobalApi from "@/app/_services/GlobalApi";
+} from "../../../../components/ui/dialog";
+
 import { toast, ToastContainer } from "react-toastify";  // Import toast and ToastContainer
 import "react-toastify/dist/ReactToastify.css"; // Import the toast styles
+import GlobalApi from "../../../_services/GlobalApi";
+import { Input } from "../../../../components/ui/input";
 
 function AddNewStudent() {
   const [open, setOpen] = useState(false);

@@ -1,6 +1,7 @@
 "use client"
 import React ,{useEffect, useState}from "react";
-import GlobalApi from "@/app/_services/GlobalApi";
+import GlobalApi from "../_services/GlobalApi";
+
 
 function GradeSelect({selectedGrade}) {
   const [grades, setGrades] = useState([]);

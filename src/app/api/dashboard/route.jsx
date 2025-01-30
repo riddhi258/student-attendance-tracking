@@ -1,7 +1,7 @@
 import { eq, sql, and, desc } from "drizzle-orm";
-import db from "@/Utills";
-import { ATTENDANCE, STUDENTS } from "@/Utills/schema";
 import { NextResponse } from "next/server";
+import { ATTENDANCE, STUDENTS } from "../../../Utills/schema";
+import db from "../../../Utills";
 
 export async function GET(req) {
     const url = new URL(req.url); // Parse the request URL

@@ -1,33 +1,27 @@
 "use client";
-import React, { useEffect } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
+import React, { useEffect } from "react";
+import Image from "next/image";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutIcon, GraduationCap, Hand, Settings } from 'lucide-react';
-import { useKindeBrowserClient } from '@kinde-oss/kinde-auth-nextjs';
+import { LayoutIcon, GraduationCap, Hand, Settings } from "lucide-react";
+import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
 
 function SideNav() {
   const { user } = useKindeBrowserClient();
   const menuList = [
     {
       id: 1,
-      name: 'Dashboard',
+      name: "Dashboard",
       icon: LayoutIcon,
-      path: '/dashboard',
-    },
-    {
-      id: 2,
-      name: 'Students',
-      icon: GraduationCap,
-      path: '/dashboard/students',
-    },
-    {
-      id: 3,
-      name: 'Attendance',
-      icon: Hand,
-      path: '/dashboard/attendance',
+      path: "/dashboard-faculty",
     },
 
+    {
+      id: 2,
+      name: "Attendance",
+      icon: Hand,
+      path: "/dashboard-faculty/attendance",
+    },
   ];
 
   const path = usePathname();
@@ -47,8 +41,8 @@ function SideNav() {
           <h2
             className={`flex items-center gap-3 text-md p-4 cursor-pointer rounded-lg my-2 ${
               path === menu.path
-                ? 'bg-primary text-blue' // Add active styles
-                : 'text-slate-500 hover:bg-primary hover:text-blue'
+                ? "bg-primary text-blue" // Add active styles
+                : "text-slate-500 hover:bg-primary hover:text-blue"
             }`}
           >
             <menu.icon />
@@ -59,12 +53,13 @@ function SideNav() {
 
       <div className="flex items-center gap-2 bottom-5 fixed p-2">
         <Image
-          src={user?.picture}
+          src={user?.picture || " "}
           width={35}
           height={35}
           alt="user"
           className="rounded-full"
         />
+
         <div>
           <h2 className="text-sm font-bold">
             {user?.given_name} {user?.family_name}

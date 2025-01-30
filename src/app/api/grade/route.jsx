@@ -1,5 +1,5 @@
-import  db  from "@/Utills";
-import {GRADES}from "@/Utills/schema";
+import { GRADES} from "../../../Utills/schema";
+import db from "../../../Utills";
 import { NextResponse } from "next/server";
 
 export async function GET(req) {
