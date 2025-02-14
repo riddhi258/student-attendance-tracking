@@ -3,7 +3,7 @@ import React, { useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutIcon, GraduationCap, Hand, Settings } from "lucide-react";
+import { LayoutIcon, Hand } from "lucide-react";
 import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
 
 function SideNav() {
@@ -15,7 +15,6 @@ function SideNav() {
       icon: LayoutIcon,
       path: "/dashboard-faculty",
     },
-
     {
       id: 2,
       name: "Attendance",
@@ -50,15 +49,22 @@ function SideNav() {
           </h2>
         </Link>
       ))}
-
       <div className="flex items-center gap-2 bottom-5 fixed p-2">
-        <Image
-          src={user?.picture || " "}
-          width={35}
-          height={35}
-          alt="user"
-          className="rounded-full"
-        />
+        {user?.picture ? (
+          <Image
+            src={user.picture}
+            width={35}
+            height={35}
+            alt="user"
+            className="rounded-full"
+          />
+        ) : (
+          <div className="w-[35px] h-[35px] bg-gray-200 rounded-full flex items-center justify-center">
+            <span className="text-sm text-gray-500">
+              {user?.given_name?.[0] || "U"}
+            </span>
+          </div>
+        )}
 
         <div>
           <h2 className="text-sm font-bold">

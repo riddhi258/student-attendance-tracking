@@ -62,14 +62,38 @@ export async function POST(req,res) {
 }
 
 export async function DELETE(req) {
-   const searchParams=req.nextUrl.searchParams;
-   const studentId= searchParams.get('studentId');
-   const date= searchParams.get('date');
-   const day= searchParams.get('day');
+  const searchParams = req.nextUrl.searchParams;
+  const studentId = searchParams.get('studentId');
+  const date = searchParams.get('date');
+  const day = searchParams.get('day');
 
-   const result = await db.delete(ATTENDANCE)
-   .where(eq(ATTENDANCE.studentId,studentId))
-   .where(eq(ATTENDANCE.date,date))
-   .where(eq(ATTENDANCE.day,day))
-   
+  try {
+    // Perform the database deletion
+    const result = await db
+      .delete(ATTENDANCE)
+      .where(eq(ATTENDANCE.studentId, studentId))
+      .where(eq(ATTENDANCE.date, date))
+      .where(eq(ATTENDANCE.day, day));
+
+    // If no rows were deleted, it means the attendance record was not found
+    if (result === 0) {
+      return NextResponse.json(
+        { message: 'No matching attendance record found to delete.' },
+        { status: 404 }
+      );
+    }
+
+    // Return success response if deletion was successful
+    return NextResponse.json(
+      { message: 'Attendance deleted successfully.' },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error('Error deleting attendance:', error);
+    // Handle unexpected errors
+    return NextResponse.json(
+      { error: 'Failed to delete attendance. Please try again later.' },
+      { status: 500 }
+    );
+  }
 }

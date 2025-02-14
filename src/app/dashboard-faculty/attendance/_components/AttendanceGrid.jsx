@@ -34,29 +34,17 @@ function AttendanceGrid({ attendanceList, selectedMonth }) {
   const onMarkAttendance = (day, studentId, presentStatus) => {
     const date = moment(selectedMonth).format("MM/YYYY");
 
-    if (presentStatus) {
-      const data = { day, studentId, present: presentStatus, date };
+    const data = { day, studentId, present: presentStatus, date };
 
-      GlobalApi.MarkAttendance(data)
-        .then((resp) => {
-          console.log("Attendance marked as present:", resp);
-          toast.success(`Student ID: ${studentId} marked as present`);
-        })
-        .catch((error) => {
-          console.error("Error marking attendance:", error);
-          toast.error("Failed to mark student as present. Please try again.");
-        });
-    } else {
-      GlobalApi.MarkAbsent(studentId, day, date)
-        .then((resp) => {
-          console.log("Attendance marked as absent:", resp);
-          toast.success(`Student ID: ${studentId} marked as absent`);
-        })
-        .catch((error) => {
-          console.error("Error marking absent:", error);
-          toast.error("Failed to mark student as absent. Please try again.");
-        });
-    }
+    GlobalApi.MarkAttendance(data)
+      .then((resp) => {
+        console.log(`Attendance marked as ${presentStatus ? "present" : "absent"}:`, resp);
+        toast.success(`Student ID: ${studentId} marked as ${presentStatus ? "present" : "absent"}`);
+      })
+      .catch((error) => {
+        console.error(`Error marking attendance as ${presentStatus ? "present" : "absent"}:`, error);
+        toast.error(`Failed to mark student as ${presentStatus ? "present" : "absent"}. Please try again.`);
+      });
   };
 
   // Prepare data and columns for the grid
@@ -79,14 +67,14 @@ function AttendanceGrid({ attendanceList, selectedMonth }) {
       const attendanceMap = new Map();
       attendanceList.forEach((item) => {
         const key = `${item.studentId}-${item.day}`;
-        attendanceMap.set(key, true);
+        attendanceMap.set(key, item.present);
       });
 
       const updatedUserList = userList.map((user) => {
         const updatedUser = { ...user };
         daysArrays.forEach((day) => {
           const key = `${user.studentId}-${day}`;
-          updatedUser[day] = attendanceMap.has(key);
+          updatedUser[day] = attendanceMap.has(key) ? attendanceMap.get(key) : false;
         });
         return updatedUser;
       });
@@ -112,7 +100,15 @@ function AttendanceGrid({ attendanceList, selectedMonth }) {
 
   // Export to Excel function
   const exportToExcel = () => {
-    const worksheet = XLSX.utils.json_to_sheet(rowData);
+    const formattedRowData = rowData.map((row) => {
+      const formattedRow = { ...row };
+      daysArrays.forEach((day) => {
+        formattedRow[day] = formattedRow[day] ? "Present" : "Absent";
+      });
+      return formattedRow;
+    });
+
+    const worksheet = XLSX.utils.json_to_sheet(formattedRowData);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Attendance");
     const fileName = `Attendance_${moment(selectedMonth).format("MM-YYYY")}.xlsx`;
