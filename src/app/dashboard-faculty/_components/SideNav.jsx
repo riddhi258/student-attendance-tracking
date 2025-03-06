@@ -40,7 +40,7 @@ function SideNav() {
           <h2
             className={`flex items-center gap-3 text-md p-4 cursor-pointer rounded-lg my-2 ${
               path === menu.path
-                ? "bg-primary text-blue" // Add active styles
+                ? "bg-primary text-blue" // Active styles
                 : "text-slate-500 hover:bg-primary hover:text-blue"
             }`}
           >
@@ -49,23 +49,23 @@ function SideNav() {
           </h2>
         </Link>
       ))}
+
       <div className="flex items-center gap-2 bottom-5 fixed p-2">
-        {user?.picture ? (
+        {/* Conditional rendering of image */}
+        {user?.picture && user.picture.trim() !== "" ? (
           <Image
             src={user.picture}
             width={35}
             height={35}
             alt="user"
             className="rounded-full"
+            onError={(e) => {
+              console.log("Image failed to load:", e.target);
+            }}
           />
         ) : (
-          <div className="w-[35px] h-[35px] bg-gray-200 rounded-full flex items-center justify-center">
-            <span className="text-sm text-gray-500">
-              {user?.given_name?.[0] || "U"}
-            </span>
-          </div>
+          <div className="rounded-full bg-gray-300 w-8 h-8"></div> // Fallback if no picture
         )}
-
         <div>
           <h2 className="text-sm font-bold">
             {user?.given_name} {user?.family_name}

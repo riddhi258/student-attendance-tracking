@@ -1,0 +1,34 @@
+{
+  "version": "7",
+  "dialect": "mysql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1740377982974,
+      "tag": "0000_colorful_omega_flight",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1740378533610,
+      "tag": "0001_curved_boom_boom",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1740378710810,
+      "tag": "0002_naive_colleen_wing",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1740378855389,
+      "tag": "0003_shallow_luke_cage",
+      "breakpoints": true
+    }
+  ]
+}
