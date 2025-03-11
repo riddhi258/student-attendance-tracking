@@ -177,7 +177,7 @@ function StudentListTable({ studentList }) {
           columnDefs={colDefs}
           modules={[ClientSideRowModelModule, PaginationModule]}
           pagination={true}
-          paginationPageSize={10}
+          paginationPageSize={8}
           domLayout="autoHeight"
           rowSelection="multiple"
           animateRows={true}
