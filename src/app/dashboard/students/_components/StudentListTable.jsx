@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { AgGridReact } from "ag-grid-react";
-import { ExcelRenderer } from "react-excel-renderer"; // Import ExcelRenderer
-import { AllCommunityModule, ModuleRegistry } from "ag-grid-community";
+import { ExcelRenderer } from "react-excel-renderer";
 import { ClientSideRowModelModule, PaginationModule } from "ag-grid-community";
 import { Trash, Search } from "lucide-react";
 
@@ -16,46 +15,42 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "../../../../components/ui/alert-dialog";
-import { toast, ToastContainer } from "react-toastify"; // Import toast and ToastContainer
-import "react-toastify/dist/ReactToastify.css"; // Import the toast styles
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import GlobalApi from "../../../_services/GlobalApi";
 import { Button } from "../../../../components/ui/button";
 
 function StudentListTable({ studentList }) {
   const [rowData, setRowData] = useState([]);
   const [searchInput, setSearchInput] = useState("");
-  const [filteredData, setFilteredData] = useState([]);
 
   useEffect(() => {
     if (studentList) {
       setRowData(studentList);
-      setFilteredData(studentList); // Initialize with the full list of students
     }
   }, [studentList]);
 
+  // ✅ Delete Record with More Informative Toast
   const DeleteRecord = (id) => {
     if (!id) {
-      toast.error("No ID provided to delete the record.");
+      toast.error("Invalid record ID.");
       return;
     }
 
     GlobalApi.DeleteStudentRecord(id)
-      .then((resp) => {
-        toast.success("Record deleted successfully!");
+      .then(() => {
+        toast.success(`Student with ID ${id} deleted successfully!`);
         setRowData((prevData) => prevData.filter((item) => item.id !== id));
-        setFilteredData((prevData) =>
-          prevData.filter((item) => item.id !== id)
-        ); // Remove from filtered data as well
       })
-      .catch((err) => {
-        toast.error("Failed to delete the record.");
+      .catch(() => {
+        toast.error(`Failed to delete student with ID ${id}.`);
       });
   };
 
   const CustomButtons = (props) => (
     <AlertDialog>
-      <AlertDialogTrigger>
-        <Button
+      <AlertDialogTrigger asChild>
+        <div
           style={{
             backgroundColor: "red",
             color: "white",
@@ -64,10 +59,14 @@ function StudentListTable({ studentList }) {
             borderRadius: "4px",
             height: "20px",
             width: "30px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
           }}
         >
           <Trash style={{ width: "16px", height: "16px" }} />
-        </Button>
+        </div>
       </AlertDialogTrigger>
       <AlertDialogContent style={{ backgroundColor: "white" }}>
         <AlertDialogHeader>
@@ -86,157 +85,102 @@ function StudentListTable({ studentList }) {
       </AlertDialogContent>
     </AlertDialog>
   );
+  
 
-  const [colDefs] = useState([
-    {
-      field: "id",
-      headerName: "ID",
-      filter: "agNumberColumnFilter",
-      floatingFilter: true,
-      sortable: true,
-      resizable: true,
-      flex: 0.5,
-    },
-    {
-      field: "name",
-      headerName: "Name",
-      filter: "agTextColumnFilter",
-      floatingFilter: true,
-      sortable: true,
-      resizable: true,
-      flex: 0.5,
-    },
-    {
-      field: "contact",
-      headerName: "Contact",
-      filter: "agTextColumnFilter",
-      floatingFilter: true,
-      sortable: true,
-      resizable: true,
-      flex: 0.5,
-    },
-    {
-      field: "address",
-      headerName: "Address",
-      filter: "agTextColumnFilter",
-      floatingFilter: true,
-      sortable: true,
-      resizable: true,
-      flex: 1,
-    },
-    {
-      field: "action",
-      headerName: "Action",
-      cellRenderer: CustomButtons,
-      maxWidth: 100,
-    },
-  ]);
+  const colDefs = [
+    { field: "id", headerName: "ID", filter: true, sortable: true, flex: 0.5 },
+    { field: "name", headerName: "Name", filter: true, sortable: true, flex: 1 },
+    { field: "contact", headerName: "Contact", filter: true, sortable: true, flex: 1 },
+    { field: "address", headerName: "Address", filter: true, sortable: true, flex: 1.5 },
+    { field: "action", headerName: "Action", cellRenderer: CustomButtons, maxWidth: 100 },
+  ];
 
-  const onSearchChange = (e) => {
-    const value = e.target.value;
-    setSearchInput(value);
+  // ✅ Optimized Search with Debouncing
+  const onSearchChange = useCallback(
+    (e) => {
+      const value = e.target.value;
+      setSearchInput(value);
 
-    // Filter the rows based on the search input
-    const filtered = rowData.filter((row) => {
-      return (
-        row.name.toLowerCase().includes(value.toLowerCase()) ||
-        row.contact.toLowerCase().includes(value.toLowerCase()) ||
-        row.address.toLowerCase().includes(value.toLowerCase()) ||
-        row.id.toString().includes(value) // You can also search by ID
+      if (!value.trim()) {
+        setRowData(studentList);
+        return;
+      }
+
+      const filtered = studentList.filter((row) =>
+        Object.values(row).some(
+          (field) =>
+            field &&
+            field.toString().toLowerCase().includes(value.toLowerCase())
+        )
       );
-    });
 
-    setFilteredData(filtered);
-  };
+      setRowData(filtered);
+    },
+    [studentList]
+  );
 
-  // Excel File Upload Handler
+  // ✅ Improved Excel Upload Handling
   const handleFileUpload = (event) => {
     const file = event.target.files[0];
     if (file && file.name.endsWith(".xlsx")) {
       ExcelRenderer(file, (err, resp) => {
         if (err) {
-          toast.error("Error while reading the Excel file");
+          toast.error("Error reading the Excel file.");
+          console.error(err);
         } else {
-          // You can map the rows from the Excel file to your desired format
           const importedData = resp.rows.map((row, index) => ({
-            id: row[0], // Assuming the first column is ID
-            name: row[1], // Assuming the second column is Name
-            contact: row[2], // Assuming the third column is Contact
-            address: row[3], // Assuming the fourth column is Address
+            id: row[0] || index + 1, // Use index as fallback ID
+            name: row[1] || "N/A",
+            contact: row[2] || "N/A",
+            address: row[3] || "N/A",
           }));
 
           setRowData(importedData);
-          setFilteredData(importedData); // Update filtered data as well
           toast.success("Excel file imported successfully!");
         }
       });
     } else {
-      toast.error("Please upload a valid Excel file.");
+      toast.error("Please upload a valid .xlsx file.");
     }
   };
 
   return (
     <div style={{ marginTop: "20px" }}>
-      {/* Toast Notification */}
       <ToastContainer />
 
-      {/* Search Input with Icon */}
-      <div
-        style={{
-          marginBottom: "15px",
-          display: "flex",
-          gap: "10px",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            padding: "8px",
-            borderRadius: "4px",
-            border: "1px solid #ccc",
-            width: "300px",
-            gap: "10px",
-          }}
-        >
+      {/* Search Input */}
+      <div style={{ marginBottom: "16px", display: "flex", gap: "10px" }}>
+        <div style={{ display: "flex", border: "1px solid #ccc", padding: "8px", borderRadius: "4px", alignItems: "center", width: "300px" }}>
           <Search style={{ width: "20px", height: "20px", color: "#888" }} />
           <input
             type="text"
             value={searchInput}
             onChange={onSearchChange}
-            placeholder="Search Anything..."
-            style={{ border: "none", outline: "none", flex: 1 }}
+            placeholder="Search..."
+            style={{
+              border: "none",
+              outline: "none",
+              flex: 1,
+              paddingLeft: "8px",
+            }}
           />
         </div>
       </div>
 
       {/* Excel File Upload */}
-      <div style={{ marginBottom: "15px" }}>
-        <input
-          type="file"
-          accept=".xlsx"
-          onChange={handleFileUpload}
-          style={{ padding: "8px", cursor: "pointer" }}
-        />
-      </div>
+      <input type="file" accept=".xlsx" onChange={handleFileUpload} style={{ padding: "8px" }} />
 
-      {/* Table Container */}
-      <div
-        className="ag-theme-alpine"
-        style={{ height: "500px", width: "100%" }}
-      >
+      {/* Table */}
+      <div className="ag-theme-alpine" style={{ height: "500px", width: "100%", marginTop: "16px" }}>
         <AgGridReact
-          rowData={filteredData} // Use filteredData instead of rowData
+          rowData={rowData}
           columnDefs={colDefs}
           modules={[ClientSideRowModelModule, PaginationModule]}
-          pagination={true} // Enable pagination
-          paginationPageSize={8} // Show 10 rows per page
+          pagination={true}
+          paginationPageSize={10}
           domLayout="autoHeight"
-          enableFilter={true} // Enable the filter API
-          floatingFilter={true} // Display floating filters for each column
           rowSelection="multiple"
+          animateRows={true}
         />
       </div>
     </div>
