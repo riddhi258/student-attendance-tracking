@@ -9,7 +9,7 @@ import {
   DialogTitle,
 } from "../../../../components/ui/dialog";
 
-import { toast, ToastContainer } from "react-toastify";  // Import toast and ToastContainer
+import { toast, ToastContainer } from "react-toastify"; // Import toast and ToastContainer
 import "react-toastify/dist/ReactToastify.css"; // Import the toast styles
 import GlobalApi from "../../../_services/GlobalApi";
 import { Input } from "../../../../components/ui/input";
@@ -17,6 +17,11 @@ import { Input } from "../../../../components/ui/input";
 function AddNewStudent() {
   const [open, setOpen] = useState(false);
   const [grades, setGrades] = useState([]);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const [data, setData] = useState({
     fullName: "",
@@ -40,7 +45,7 @@ function AddNewStudent() {
       toast.error("Please enter a full name");
       return;
     }
- 
+
     setOpen(false);
 
     GlobalApi.CreateNewStudent({
@@ -48,13 +53,15 @@ function AddNewStudent() {
       grade: data.grade,
       contact: data.contactNumber,
       address: data.address,
-    }).then((resp) => {
-      console.log("--", resp);
-      toast.success("New student added!");
-    }).catch((error) => {
-      toast.error("Failed to add student");
-      console.error(error);
-    });
+    })
+      .then((resp) => {
+        console.log("--", resp);
+        toast.success("New student added!");
+      })
+      .catch((error) => {
+        toast.error("Failed to add student");
+        console.error(error);
+      });
   };
 
   // Fetch all grades when the component mounts
@@ -64,22 +71,22 @@ function AddNewStudent() {
 
   // Function to fetch all grades
   const GetAllGradesList = () => {
-    GlobalApi.GetAllGrades().then((resp) => {
-      if (resp.data) {
-        setGrades(resp.data);
-      } else {
-        console.error("Failed to load grades");
-      }
-    });
+    GlobalApi.GetAllGrades()
+      .then((resp) => {
+        if (resp.data) {
+          setGrades(resp.data);
+        }
+      })
+      .catch((error) => {
+        console.error("Failed to fetch grades:", error);
+      });
   };
+
+  if (!isMounted) return null;
 
   return (
     <div>
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={() => setOpen(true)}
-      >
+      <Button variant="contained" color="primary" onClick={() => setOpen(true)}>
         + Add New Student
       </Button>
 
@@ -110,7 +117,7 @@ function AddNewStudent() {
                   />
 
                   {/* Grade Selection */}
-                  <div style={{ marginBottom: "16px" }}>
+                  <div className="margin-bottom-16">
                     <label
                       htmlFor="grade"
                       style={{
@@ -132,6 +139,7 @@ function AddNewStudent() {
                         border: "1px solid #ccc",
                       }}
                     >
+                      <option value="">Select a grade</option>
                       {grades.map((item, index) => (
                         <option key={index} value={item.grade}>
                           {item.grade}
